@@ -1,0 +1,14 @@
+html, body {
+	background: #efefef;      
+	height:100%;  
+  }
+  #center-text {          
+	display: flex;
+	flex: 1;
+	flex-direction:column; 
+	justify-content: center;
+	align-items: center;  
+	height:100%;
+	
+  }
+  
