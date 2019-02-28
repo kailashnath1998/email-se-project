@@ -215,8 +215,15 @@ class ApiController extends Controller
         $mail->content = $request->message;
         $mail->type = 1;
 
-        if($request->reply)
-            $mail->reply = $request->reply;
+        if($request->reply) {
+            $rply = Email::where('id', $request->reply)->first();
+
+            if($rply && $rply->to == $request->user->username && $request->to == $rply->from)
+                $mail->reply = $request->reply;
+
+            $mail->reply = null;
+
+        }
         else
             $mail->reply = null;
 
@@ -304,6 +311,19 @@ class ApiController extends Controller
         $mail->content = $request->message;
         $mail->type = 1;
         $mail->is_draft = true;
+
+        if($request->reply) {
+            $rply = Email::where('id', $request->reply)->first();
+
+            if($rply && $rply->to == $request->user->username && $request->to == $rply->from)
+                $mail->reply = $request->reply;
+
+            $mail->reply = null;
+
+        }
+        else
+            $mail->reply = null;
+            
 
         if($request->reply)
             $mail->reply = $request->reply;
@@ -416,6 +436,7 @@ class ApiController extends Controller
         if($request->message)
             $mail->content = $request->message;
 
+        $mail->is_draft = false;
 
         $mail->save();
         
