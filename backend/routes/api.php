@@ -24,7 +24,23 @@ Route::group(['middleware' => 'auth.verify'], function () {
     Route::get('/logout', 'ApiController@logout');
  
     Route::get('/user', 'ApiController@getAuthUser');
- 
+
+    Route::post('/send', 'ApiController@send');
+
+    Route::get('/recive', 'ApiController@recive');
+
+    Route::get('/message', 'ApiController@message');
+
+    Route::get('/alldraft', 'ApiController@getAllDraft');
+
+    Route::post('/chagetype', 'ApiController@message');
+
+    Route::post('/draft', 'ApiController@draft');
+
+    Route::post('/draftupdate', 'ApiController@draftUpdate');
+
+    
+
 });
 
 Route::get('/admin', function () {

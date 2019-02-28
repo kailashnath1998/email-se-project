@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RegisterAuthRequest;
 use App\User;
 use App\Admins;
+use App\Email;
+use App\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use JWTAuth;
@@ -155,4 +157,190 @@ class ApiController extends Controller
     {
         return response()->json(['user' => $request->user, 'role' => $request->user->role]);
     }
+
+
+    public function send(Request $request) {
+
+        $validator = Validator::make($request->all() + ['from' => $request->user->username],[
+            'from' => 'required|exists:users,username',
+            'to' => 'required|exists:users,username',
+            'subject' => 'required|min:1',
+            'message' => 'required|min:1',
+        ]);
+
+
+        if ($validator->fails()) {
+ 
+            return response()->json(["success" => false, "error" =>$validator->errors()->first()],400);
+        }
+
+        $mail = new Email();
+
+        $mail->from = $request->user->username;
+        $mail->to = $request->to;
+        $mail->subject = $request->subject;
+        $mail->content = $request->message;
+        $mail->type = 1;
+
+        if($request->reply)
+            $mail->reply = $request->reply;
+        else
+            $mail->reply = null;
+
+        $mail->save();        
+
+        return response()->json(['success' => true, 'message' => 'sent successfuly']);
+    }
+
+    public function recive(Request $request) {
+
+        $request->to = $request->user->username;
+        $request->type = 1;
+
+        $mails = Email::where(['to', $request->to, 'is_draft' => false])
+                        ->where('type', $request->type)->get();
+
+        
+        return response()->json(['success' => true, 'message' => $mails]);
+    }
+
+    public function message(Request $request) {
+        $validator = Validator::make($request->all(),[
+            'id' => 'required',
+        ]);
+
+
+        if ($validator->fails()) {
+ 
+            return response()->json(["success" => false, "error" =>$validator->errors()->first()],400);
+        }   
+
+        $mail = Email::where([ 'id' => $request->id])
+                ->where(function($query) use ($request)
+                {
+                    $query->where('from' , $request->user->username)
+                            ->orWhere(['to' => $request->user->username, 'is_draft' => false]);
+                })
+                ->first();
+        
+        return response()->json(['success' => true, 'message' => $mail]);
+    }
+
+
+    public function draft(Request $request) {
+        $validator = Validator::make($request->all() + ['from' => $request->user->username],[
+            'from' => 'required|exists:users,username',
+            'subject' => 'required|min:1',
+            'message' => 'required|min:1',
+        ]);
+
+
+        if ($validator->fails()) {
+ 
+            return response()->json(["success" => false, "error" =>$validator->errors()->first()],400);
+        }
+
+        $mail = new Email();
+
+        $mail->from = $request->user->username;
+
+        if($request->to)
+            $mail->to = $request->to;
+
+        $mail->subject = $request->subject;
+        $mail->content = $request->message;
+        $mail->type = 1;
+        $mail->is_draft = true;
+
+        if($request->reply)
+            $mail->reply = $request->reply;
+        else
+            $mail->reply = null;
+
+        $mail->save();        
+
+        return response()->json(['success' => true, 'message' => 'sent successfuly']);
+    }
+
+
+
+    public function draftUpdate(Request $request) {
+        $validator = Validator::make($request->all() + ['from' => $request->user->username],[
+            'from' => 'required|exists:users,username',
+            'subject' => 'required|min:1',
+            'message' => 'required|min:1',
+            'id' => 'required'
+        ]);
+
+
+        if ($validator->fails()) {
+ 
+            return response()->json(["success" => false, "error" =>$validator->errors()->first()],400);
+        }
+
+        $mail = Email::where(['id' => $request->id, 'is_draft' => true])->first();
+
+        if(!($mail))
+            return response()->json(["success" => false, "error" => "Doesn't Exists"],400);
+
+        if($request->to)
+            $mail->to = $request->to;
+
+        $mail->subject = $request->subject;
+        $mail->content = $request->message;
+        
+        if($request->type)
+            $mail->type = 1;
+
+        $mail->save();
+        
+        return response()->json(['success' => true, 'message' => 'drafted successfuly']);
+
+    }
+
+    public function changeType(Request $request) {
+        $validator = Validator::make($request->all(),[
+            'id' => 'required',
+            'type' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+ 
+            return response()->json(["success" => false, "error" =>$validator->errors()->first()],400);
+        }
+
+        $mail = Email::where(['to' => $request->user->username])->first();
+        $typeNew = Type::where(['slug' => $request->type])->first();
+
+        if($mail && $typeNew) {
+            $mail->type = $typeNew->id;
+            $mail->save();
+            return response()->json(['success' => true, 'message' => 'changed successfuly']);
+        }
+        else
+            return response(400)->json(['success' => false, 'message' => 'bad request']);
+    }
+
+
+    public function getAllDraft(Request $request) {
+
+        $request->type = 1;
+
+        $mails = Email::where(['from' => $request->user->username, 'is_draft' => true])
+                        ->where('type', $request->type)->get();
+
+        
+        return response()->json(['success' => true, 'message' => $mails]);
+
+    }
+
 }
+
+/*
+
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'draft' in 'field list' (SQL: update `emails` set `updated_at` = 2019-02-28 07:13:43, `draft` = 1 where `id` = 4)
+
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'draft' in 'field list' (SQL: update `emails` set `updated_at` = 2019-02-28 07:14:49, `draft` = 1 where `id` = 4)
+
+
+*/

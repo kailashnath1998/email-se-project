@@ -29,7 +29,7 @@
                 // error_log(JWTAuth::parseToken()->authenticate());
                 $user = JWTAuth::parseToken()->authenticate();
                 $user->roles =Role::where('id', $user->role)->first();
-                error_log($user);
+                // error_log($user);
                 $request->user = $user;
             } catch (Exception $e) {
                 if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException){
