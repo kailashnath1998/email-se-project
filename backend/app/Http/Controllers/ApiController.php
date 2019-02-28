@@ -220,8 +220,8 @@ class ApiController extends Controller
 
             if($rply && $rply->to == $request->user->username && $request->to == $rply->from)
                 $mail->reply = $request->reply;
-
-            $mail->reply = null;
+            else
+                $mail->reply = null;
 
         }
         else
@@ -237,7 +237,7 @@ class ApiController extends Controller
         $request->to = $request->user->username;
         $typeNew = Type::where('slug' , $request->type)->first();
 
-        // error_log($typeNew);
+        error_log($typeNew);
         // error_log($request->type);
 
 
@@ -246,14 +246,14 @@ class ApiController extends Controller
         else
             $request->type = 1;
 
-        // error_log($request->type);
+        error_log($request->type);
         
         // $mails = Email::where(['to' => $request->to, 'is_draft' => false])
         //                 ->where('type', $request->type)
         //                 ->get();
 
         $mails = DB::table('emails')
-                        ->select('emails.id','emails.from','emails.to', 'emails.subject', 'emails.content', 'emails.reply', 'emails.updated_at', 'types.slug')
+                        ->select('emails.id','emails.from','emails.to', 'emails.subject', 'emails.content','emails.type', 'emails.reply', 'emails.updated_at', 'types.slug')
                         ->join('types','types.id','=','emails.type')
                         ->where(['emails.to' => $request->to, 'emails.is_draft' => false, 'emails.type' => $request->type ])
                         ->get();
@@ -315,20 +315,17 @@ class ApiController extends Controller
         if($request->reply) {
             $rply = Email::where('id', $request->reply)->first();
 
-            if($rply && $rply->to == $request->user->username && $request->to == $rply->from)
+            if($rply && $rply->to == $request->user->username) {
                 $mail->reply = $request->reply;
-
-            $mail->reply = null;
+                $mail->to = $rply->from;
+            }
+            else
+                $mail->reply = null;
 
         }
         else
             $mail->reply = null;
-            
 
-        if($request->reply)
-            $mail->reply = $request->reply;
-        else
-            $mail->reply = null;
 
         $mail->save();        
 
@@ -357,7 +354,7 @@ class ApiController extends Controller
         if(!($mail))
             return response()->json(["success" => false, "error" => "Doesn't Exists"],400);
 
-        if($request->to)
+        if($request->to && !($mail->reply))
             $mail->to = $request->to;
 
         $mail->subject = $request->subject;
@@ -414,7 +411,6 @@ class ApiController extends Controller
 
     public function sendDraft(Request $request) {
         $validator = Validator::make($request->all() + ['from' => $request->user->username],[
-            'to' => 'required|exists:users,username',
             'id' => 'required'
         ]);
 
@@ -429,7 +425,16 @@ class ApiController extends Controller
             return response()->json(["success" => false, "error" => "Doesn't Exists"],400);
 
 
-        $mail->to = $request->to;
+        if(!($mail->to) && !($request->to))
+            return response()->json(["success" => false, "error" => "required to address"],400);
+
+        $chkMail = User::where('username', $mail->to)->first();
+
+        if(!($chkMail))
+            return response()->json(["success" => false, "error" => "To user Doesn't Exists"],400);
+
+        if(!($mail->to))
+            $mail->to = $request->to;
 
         if($request->subject)
             $mail->subject = $request->subject;
