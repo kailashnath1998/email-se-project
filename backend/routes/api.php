@@ -39,7 +39,9 @@ Route::group(['middleware' => 'auth.verify'], function () {
 
     Route::post('/draftupdate', 'ApiController@draftUpdate');
 
-    
+    Route::post('/changepassword', 'ApiController@changePassword');
+
+    Route::get('/resetpassword', 'ApiController@resetPassword');
 
 });
 

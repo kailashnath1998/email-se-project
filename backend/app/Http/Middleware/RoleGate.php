@@ -18,7 +18,7 @@ class RoleGate
         // error_log($request->user()->role);
         if ($request->user() && $request->user()->roles && $request->user()->roles->slug === $role) {
             return response()->json(["success" => true,
-                'message' => 'Welcome' + $role
+                'message' => 'Welcome ' . $role
                 ],200);
         }
         return response()->json(["success" => true,

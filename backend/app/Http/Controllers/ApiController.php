@@ -7,11 +7,13 @@ use App\User;
 use App\Admins;
 use App\Email;
 use App\Type;
+use App\SendMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Hash;
 use Log;
  
 class ApiController extends Controller
@@ -59,6 +61,34 @@ class ApiController extends Controller
             'success' => true,
             'data' => $user
         ], 200);
+    }
+
+    public function changePassword(Request $request) {
+        $validator = Validator::make($request->all(),[
+            'crrpassword' => 'required|min:6',
+            'password' => 'required|min:6'
+        ]);
+
+        if ($validator->fails()) {
+ 
+            return response()->json(["success" => false, "error" =>$validator->errors()->first()],400);
+        }
+
+        $user = User::where('username', $request->user->username)->first();
+        if(Hash::check($request->crrpassword, $user->password)) {
+            $user->password = bcrypt($request->password);
+            $user->save();
+            return response()->json([
+                'success' => true,
+                'message' => 'update successfull'
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'password mismatch'
+        ], 200);
+
     }
  
     public function login(Request $request)
@@ -162,7 +192,7 @@ class ApiController extends Controller
     public function send(Request $request) {
 
         $validator = Validator::make($request->all() + ['from' => $request->user->username],[
-            'from' => 'required|exists:users,username',
+            'from' => 'required|exists:users,userexistsname',
             'to' => 'required|exists:users,username',
             'subject' => 'required|min:1',
             'message' => 'required|min:1',
@@ -318,7 +348,7 @@ class ApiController extends Controller
             return response()->json(['success' => true, 'message' => 'changed successfuly']);
         }
         else
-            return response(400)->json(['success' => false, 'message' => 'bad request']);
+            return response()->json(['success' => false, 'message' => 'bad request'],400);
     }
 
 

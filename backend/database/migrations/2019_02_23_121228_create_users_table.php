@@ -18,8 +18,8 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->string('username')->unique();
             $table->string('password');
-            $table->bigInteger('phoneNumber');
-            $table->unsignedInteger('role');
+            $table->bigInteger('phoneNumber')->default(0000000000);
+            $table->unsignedInteger('role')->default(1);
             $table->timestamps();
             $table->foreign('role')->references('id')->on('roles');
         });

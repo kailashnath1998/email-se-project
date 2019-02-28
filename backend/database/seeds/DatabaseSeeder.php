@@ -26,7 +26,29 @@ class DatabaseSeeder extends Seeder
         $role2->slug = 'admin';
         $role2->save();
 
-        
+        $type = new Type();
+        $type->slug = 'primary';
+        $type->save();
+
+        $users = array(
+            ['name' => 'Kailashnath N', 'username' => 'knn', 'password' => bcrypt('password')],
+            ['name' => 'Deepak Rao', 'username' => 'deepak', 'password' => bcrypt('password')],
+            ['name' => 'Pavithra O', 'username' => 'pavi', 'password' => bcrypt('password')],
+            ['name' => 'Snigdha PST', 'username' => 'snigdha', 'password' => bcrypt('password')],
+        );
+        // Loop through each user above and create the record for them in the database
+        foreach ($users as $user)
+        {
+            User::create($user);
+            if($user['username'] == 'knn') {
+                $user1 = User::where('username', '=', $user['username'])->first();
+                $rolem = Role::where('slug', '=', 'admin')->first();
+                $user1->role = ($rolem->id);
+                $user1->save();
+            }
+        }
+
+
 
     }
 }
