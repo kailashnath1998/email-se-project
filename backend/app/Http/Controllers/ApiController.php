@@ -192,7 +192,7 @@ class ApiController extends Controller
     public function send(Request $request) {
 
         $validator = Validator::make($request->all() + ['from' => $request->user->username],[
-            'from' => 'required|exists:users,userexistsname',
+            'from' => 'required|exists:users,username',
             'to' => 'required|exists:users,username',
             'subject' => 'required|min:1',
             'message' => 'required|min:1',
