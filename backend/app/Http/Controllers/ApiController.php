@@ -160,7 +160,7 @@ class ApiController extends Controller
 
 
         foreach ($admins as $admin) {
-            error_log($username);
+            // error_log($username);
             try {
                 Mail::send([], [], function ($message) use ($admin, $message_, $username) {
                     $message->from($username, 'MAIL HANGER');
@@ -230,8 +230,8 @@ class ApiController extends Controller
         $request->to = $request->user->username;
         $typeNew = Type::where('slug' , $request->type)->first();
 
-        error_log($typeNew);
-        error_log($request->type);
+        // error_log($typeNew);
+        // error_log($request->type);
 
 
         if($typeNew) 
@@ -239,7 +239,7 @@ class ApiController extends Controller
         else
             $request->type = 1;
 
-        error_log($request->type);
+        // error_log($request->type);
         
         // $mails = Email::where(['to' => $request->to, 'is_draft' => false])
         //                 ->where('type', $request->type)
@@ -251,7 +251,7 @@ class ApiController extends Controller
                         ->where(['emails.to' => $request->to, 'emails.is_draft' => false, 'emails.type' => $request->type ])
                         ->get();
 
-        error_log(sizeof($mails));
+        // error_log(sizeof($mails));
 
         
         return response()->json(['success' => true, 'message' => $mails]);
