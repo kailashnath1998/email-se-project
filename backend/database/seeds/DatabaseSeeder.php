@@ -4,6 +4,7 @@ use Illuminate\Database\Seeder;
 use App\User;
 use App\Role;
 use App\Type;
+use App\Admins;
 
 class DatabaseSeeder extends Seeder
 {
@@ -30,6 +31,10 @@ class DatabaseSeeder extends Seeder
         $type->slug = 'primary';
         $type->save();
 
+        $type1 = new Type();
+        $type1->slug = 'promotions';
+        $type1->save();
+
         $users = array(
             ['name' => 'Kailashnath N', 'username' => 'knn', 'password' => bcrypt('password')],
             ['name' => 'Deepak Rao', 'username' => 'deepak', 'password' => bcrypt('password')],
@@ -47,6 +52,16 @@ class DatabaseSeeder extends Seeder
                 $user1->save();
             }
         }
+
+        $admins = array(
+            ['name' => 'Kailashnath N', 'email' => 'kailashnath1998@gmail.com'],
+        );
+
+        foreach ($admins as $user)
+        {
+            Admins::create($user);
+        }
+
 
 
 

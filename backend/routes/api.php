@@ -33,7 +33,7 @@ Route::group(['middleware' => 'auth.verify'], function () {
 
     Route::get('/alldraft', 'ApiController@getAllDraft');
 
-    Route::post('/chagetype', 'ApiController@message');
+    Route::post('/changetype', 'ApiController@changeType');
 
     Route::post('/draft', 'ApiController@draft');
 
@@ -42,6 +42,8 @@ Route::group(['middleware' => 'auth.verify'], function () {
     Route::post('/changepassword', 'ApiController@changePassword');
 
     Route::get('/resetpassword', 'ApiController@resetPassword');
+
+    Route::post('/senddraft', 'ApiController@sendDraft');
 
 });
 

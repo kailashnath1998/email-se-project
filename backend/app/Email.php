@@ -3,8 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Eloquent;
 
-class Email extends Model
+class Email extends Eloquent
 {
     //
     protected $table = 'emails';
@@ -14,7 +15,12 @@ class Email extends Model
     ];
 
     protected $hidden = [
-        'created_at', 'updated_at', 'is_draft'
+        'type', 'updated_at', 'is_draft'
     ];
+
+    public function type()
+    {
+        return $this->hasOne(Type::class);
+    }
 
 }

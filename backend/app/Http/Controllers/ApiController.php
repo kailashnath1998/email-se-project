@@ -15,6 +15,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Log;
+use DB;
  
 class ApiController extends Controller
 {
@@ -204,6 +205,8 @@ class ApiController extends Controller
             return response()->json(["success" => false, "error" =>$validator->errors()->first()],400);
         }
 
+        $typeNew = Type::where(['slug' => $request->type])->first();
+
         $mail = new Email();
 
         $mail->from = $request->user->username;
@@ -225,10 +228,30 @@ class ApiController extends Controller
     public function recive(Request $request) {
 
         $request->to = $request->user->username;
-        $request->type = 1;
+        $typeNew = Type::where('slug' , $request->type)->first();
 
-        $mails = Email::where(['to', $request->to, 'is_draft' => false])
-                        ->where('type', $request->type)->get();
+        error_log($typeNew);
+        error_log($request->type);
+
+
+        if($typeNew) 
+            $request->type = $typeNew->id;
+        else
+            $request->type = 1;
+
+        error_log($request->type);
+        
+        // $mails = Email::where(['to' => $request->to, 'is_draft' => false])
+        //                 ->where('type', $request->type)
+        //                 ->get();
+
+        $mails = DB::table('emails')
+                        ->select('emails.id','emails.from','emails.to', 'emails.subject', 'emails.content', 'emails.reply', 'emails.updated_at', 'types.slug')
+                        ->join('types','types.id','=','emails.type')
+                        ->where(['emails.to' => $request->to, 'emails.is_draft' => false, 'emails.type' => $request->type ])
+                        ->get();
+
+        error_log(sizeof($mails));
 
         
         return response()->json(['success' => true, 'message' => $mails]);
@@ -304,11 +327,12 @@ class ApiController extends Controller
 
 
         if ($validator->fails()) {
- 
             return response()->json(["success" => false, "error" =>$validator->errors()->first()],400);
         }
 
         $mail = Email::where(['id' => $request->id, 'is_draft' => true])->first();
+        $typeNew = Type::where(['slug' => $request->type])->first();
+
 
         if(!($mail))
             return response()->json(["success" => false, "error" => "Doesn't Exists"],400);
@@ -318,9 +342,7 @@ class ApiController extends Controller
 
         $mail->subject = $request->subject;
         $mail->content = $request->message;
-        
-        if($request->type)
-            $mail->type = 1;
+
 
         $mail->save();
         
@@ -348,21 +370,58 @@ class ApiController extends Controller
             return response()->json(['success' => true, 'message' => 'changed successfuly']);
         }
         else
-            return response()->json(['success' => false, 'message' => 'bad request'],400);
+            return response()->json(['success' => false, 'message' => 'invalid id / slug'],400);
     }
 
 
     public function getAllDraft(Request $request) {
 
-        $request->type = 1;
+        $mails = null;
 
-        $mails = Email::where(['from' => $request->user->username, 'is_draft' => true])
-                        ->where('type', $request->type)->get();
-
+        $typeNew = Type::where(['slug' => "primary"])->first();
         
+        if($typeNew)
+            $mails = Email::where(['from' => $request->user->username, 'is_draft' => true])
+                            ->where('type', $typeNew->id)->get();
+
+        else
+            $mails = Email::where(['from' => $request->user->username, 'is_draft' => true])->get();
+
         return response()->json(['success' => true, 'message' => $mails]);
 
     }
+
+
+    public function sendDraft(Request $request) {
+        $validator = Validator::make($request->all() + ['from' => $request->user->username],[
+            'to' => 'required|exists:users,username',
+            'id' => 'required'
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json(["success" => false, "error" =>$validator->errors()->first()],400);
+        }
+
+        $mail = Email::where(['id' => $request->id, 'is_draft' => true])->first();
+
+        if(!($mail))
+            return response()->json(["success" => false, "error" => "Doesn't Exists"],400);
+
+
+        $mail->to = $request->to;
+
+        if($request->subject)
+            $mail->subject = $request->subject;
+        if($request->message)
+            $mail->content = $request->message;
+
+
+        $mail->save();
+        
+        return response()->json(['success' => true, 'message' => 'sent successfuly']);
+    }
+
 
 }
 
