@@ -253,7 +253,7 @@ class ApiController extends Controller
         //                 ->get();
 
         $mails = DB::table('emails')
-                        ->select('emails.id','emails.from','emails.to', 'emails.subject', 'emails.content', 'emails.reply', 'emails.updated_at', 'types.slug')
+                        ->select('emails.id','emails.from','emails.to', 'emails.subject', 'emails.content','emails.type', 'emails.reply', 'emails.updated_at', 'types.slug')
                         ->join('types','types.id','=','emails.type')
                         ->where(['emails.to' => $request->to, 'emails.is_draft' => false, 'emails.type' => $request->type ])
                         ->get();
