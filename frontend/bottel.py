@@ -1,4 +1,5 @@
-from bottle import route, run, request, response, Bottle
+from bottle import route, run, request, response, Bottle,template
+import bottle
 import random
 import json
 import datetime
@@ -7,6 +8,7 @@ import sys
 from bottle import static_file
 import json
 import re
+import os     
 
 logging.basicConfig(level=logging.INFO)
 
@@ -16,9 +18,14 @@ app = Bottle()
 
 # define routes
 
+
 @app.route('/', method='GET')
-def home():
-    return static_file('index.html', root='./')
+def main():
+    return static_file('landing.html', root='./static')
+
+@app.route('/<filename:re:.*\.html>', method='GET')
+def home(filename):
+    return static_file(filename, root='./static')
 
 
 @app.route('/js/<filename:re:.*\.js>')
@@ -35,6 +42,10 @@ def css(filename):
 def css(filename):
     return static_file(filename, root='./static/assets/')
 
+@app.get('/favicon.ico')
+def get_favicon():
+    return static_file('favicon.ico', root='./static/assets/')
+
 
 @app.hook('after_request')
 def enable_cors():
@@ -49,4 +60,4 @@ def enable_cors():
 
 
 
-run(app, host='0.0.0.0', port=6789, reloader=True, debug=True)
+run(app, host='0.0.0.0', port=3000, reloader=True, debug=True)

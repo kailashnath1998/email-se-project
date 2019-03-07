@@ -1,0 +1,1 @@
+const api = 'http://' + location.hostname + ':8000/api'

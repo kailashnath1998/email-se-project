@@ -179,14 +179,14 @@ class ApiController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Mail sent successfuly'
-        ], 500);
+            'message' => 'Mail sent successfuly to Admins'
+        ], 200);
 
     }
 
     public function getAuthUser(Request $request)
     {
-        return response()->json(['user' => $request->user, 'role' => $request->user->role]);
+        return response()->json(['success' => true, 'user' => $request->user, 'role' => $request->user->role]);
     }
 
 
@@ -256,6 +256,26 @@ class ApiController extends Controller
                         ->select('emails.id','emails.from','emails.to', 'emails.subject', 'emails.content', 'emails.reply', 'emails.updated_at', 'types.slug')
                         ->join('types','types.id','=','emails.type')
                         ->where(['emails.to' => $request->to, 'emails.is_draft' => false, 'emails.type' => $request->type ])
+                        ->get();
+
+        // error_log(sizeof($mails));
+
+        
+        return response()->json(['success' => true, 'message' => $mails]);
+    }
+
+
+    public function sent(Request $request) {
+        $request->from = $request->user->username;
+        
+        // $mails = Email::where(['to' => $request->to, 'is_draft' => false])
+        //                 ->where('type', $request->type)
+        //                 ->get();
+
+        $mails = DB::table('emails')
+                        ->select('emails.id','emails.from','emails.to', 'emails.subject', 'emails.content', 'emails.reply', 'emails.updated_at', 'types.slug')
+                        ->join('types','types.id','=','emails.type')
+                        ->where(['emails.from' => $request->from, 'emails.is_draft' => false])
                         ->get();
 
         // error_log(sizeof($mails));

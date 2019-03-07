@@ -45,6 +45,8 @@ Route::group(['middleware' => 'auth.verify'], function () {
 
     Route::post('/senddraft', 'ApiController@sendDraft');
 
+    Route::get('/sent', 'ApiController@sent');
+
 });
 
 Route::get('/admin', function () {
