@@ -15,7 +15,7 @@ class Email extends Eloquent
     ];
 
     protected $hidden = [
-        'type', 'updated_at', 'is_draft'
+        'type', 'is_draft'
     ];
 
     public function type()

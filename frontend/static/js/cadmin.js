@@ -27,7 +27,7 @@ function contact() {
         success: function (res, textStatus, xmLHttpRequest) {
             if (res['success']) {
                 swal(res.message).then(function () {
-                    location.href = '/login.html';
+                    location.href = '/';
                 });
             } else {
                 swal(res.message || res.error);

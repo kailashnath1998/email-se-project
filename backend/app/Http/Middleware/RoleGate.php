@@ -17,12 +17,13 @@ class RoleGate
     {
         // error_log($request->user()->role);
         if ($request->user() && $request->user()->roles && $request->user()->roles->slug === $role) {
-            return response()->json(["success" => true,
-                'message' => 'Welcome ' . $role
-                ],200);
+            $request->role = 'admin';
+            return $next($request);
         }
-        return response()->json(["success" => true,
-            'message' => 'Denied'
-        ],200);
+        else {
+            return response()->json(["success" => false,
+                'message' => 'Denied'
+            ],200);
+        }
     }
 }

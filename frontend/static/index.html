@@ -83,6 +83,12 @@
                         </li>
 
                         <li>
+                            <a href="draft.html">
+                                Draft
+                            </a>
+                        </li>
+
+                        <li>
                             <a href="#" onclick="logout()">
                                 Logout
                             </a>
@@ -124,7 +130,12 @@
                                     </div>
                                 </div>
                                 <div class="content_box_inner">
-                                    <button type="submit" class="btn btn-info" onclick="refresh()">Refresh</button>
+                                    <button type="submit" class="btn btn-info"
+                                        onclick="recive('primary')">Primary</button>
+                                    <button type="submit" class="btn btn-info"
+                                        onclick="recive('promotions')">Promotional</button>
+                                    <button type="submit" class="btn btn-info" onclick="refresh()">Refresh <i
+                                            class="fa fa-refresh"></i></button>
                                 </div>
 
                             </div>

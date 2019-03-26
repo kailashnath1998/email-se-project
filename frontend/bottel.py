@@ -23,9 +23,22 @@ app = Bottle()
 def main():
     return static_file('landing.html', root='./static')
 
+
 @app.route('/<filename:re:.*\.html>', method='GET')
 def home(filename):
     return static_file(filename, root='./static')
+
+
+@app.route('/<id>', method = 'GET')
+def forward(id):
+	if id == 'admin':
+		return static_file('admin.html', root='./static')
+	elif request.query['type'] == 'fwd':
+		return template('test.tpl', {'id' : id})
+	elif request.query['type'] == 'rply':
+		return template('test1.tpl', {'id' : id})
+	elif request.query['type'] == 'dedit':
+		return template('test2.tpl', {'id' : id})
 
 
 @app.route('/js/<filename:re:.*\.js>')

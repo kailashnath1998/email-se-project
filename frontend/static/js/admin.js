@@ -23,12 +23,7 @@ function generate_modal(from, subject, time, message, to, id) {
           <p>Subject : ${subject}</p>
           <p>Message : <br> ${message}</p>
           <br>
-          <button type="button" class="btn btn-default" onclick="location.href='/${id}?type=fwd'">Forward</button>
-          <button type="button" class="btn btn-default" onclick="location.href='/${id}?type=rply'">Reply</button>
-          <button type="button" class="btn btn-default" onclick="report(${id})">Report</button>
-          <br><br>
-          <button type="button" class="btn btn-default" onclick="set_category(${id},'primary')">Set as Primary</button>
-          <button type="button" class="btn btn-default" onclick="set_category(${id},'promotions')">Set as Promotion</button>
+          <button type="button" class="btn btn-default" onclick="resolve(${id})">Resolve</button>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -40,14 +35,14 @@ function generate_modal(from, subject, time, message, to, id) {
     `
 }
 
-function report(id) {
+function resolve(id) {
     var data = {
         "id": id
     }
 
     $.ajax({
         async: true,
-        url: api + '/report',
+        url: api + '/admin/resolve',
         method: "POST",
         headers: {
             "Authorization": "Bearer " + token,
@@ -71,11 +66,11 @@ function report(id) {
 }
 
 
-function recive(category) {
+function recive() {
 
     $.ajax({
         async: true,
-        url: api + '/recive?type=' + category,
+        url: api + '/admin/reports',
         method: "GET",
         headers: {
             "Authorization": "Bearer " + token
@@ -103,36 +98,6 @@ function recive(category) {
     });
 }
 
-function set_category(id, type) {
-
-    var data = {
-        "id": id,
-        "type": type
-    }
-    $.ajax({
-        async: true,
-        url: api + '/changetype',
-        method: "POST",
-        headers: {
-            "Authorization": "Bearer " + token,
-            "Content-Type": "application/json"
-        },
-        processData: false,
-        data: JSON.stringify(data),
-        success: function (res, textStatus, xmLHttpRequest) {
-            console.log(res);
-            if (res['success']) {
-                swal(res['message']);
-            } else {
-                swal(res['error']);
-            }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            localStorage.removeItem('token');
-            location.href = '/login.html';
-        },
-    });
-}
 
 function logout() {
     $.ajax({
@@ -185,7 +150,7 @@ async function checkAll() {
 }
 
 function refresh() {
-    recive('primary');
+    recive();
 }
 
 $(document).ready(function () {

@@ -47,10 +47,19 @@ Route::group(['middleware' => 'auth.verify'], function () {
 
     Route::get('/sent', 'ApiController@sent');
 
+    Route::post('/report', 'ApiController@reportMail');
+
+
 });
 
-Route::get('/admin', function () {
-    //
-})->middleware('auth.verify','role:admin');
+Route::get('/admin/reports','ApiController@reports')->middleware('auth.verify','role:admin');
+Route::post('/admin/resolve','ApiController@resolve')->middleware('auth.verify','role:admin');
 
 Route::post('/contact', 'ApiController@conatctAdmin');
+
+
+/*
+Argument 1 passed to Illuminate\Routing\Middleware\ThrottleRequests::addHeaders() must be an instance of Symfony\Component\HttpFoundation\Response, null given, called in D:\LaravelTest\email\backend\vendor\laravel\framework\src\Illuminate\Routing\Middleware\ThrottleRequests.php on line 62
+
+
+*/

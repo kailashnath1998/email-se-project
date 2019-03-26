@@ -7,6 +7,7 @@ use App\User;
 use App\Admins;
 use App\Email;
 use App\Type;
+use App\hostHistroy;
 use App\SendMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -102,6 +103,26 @@ class ApiController extends Controller
                 'success' => false,
                 'message' => 'Invalid Email or Password',
             ], 401);
+        }
+
+        $user = User::where('username', $request->username)->first();
+
+
+        $validHost = hostHistroy::where(['userID' => $user->id, 'lastIP' => $request->ip()])->count();
+
+        if(!$validHost > 0) {
+            $mail = new Email();
+            $mail->from = 'system';
+            $mail->to = $user->username;
+            $mail->subject = "Alert New Login";
+            $mail->content = "Alerting new login";
+            $mail->type = 1;
+            $mail->save();
+
+            $hh = new hostHistroy();
+            $hh->userID = $user->id;
+            $hh->lastIP = $request->ip();
+            $hh->save();
         }
  
         return response()->json([
@@ -237,6 +258,7 @@ class ApiController extends Controller
         $request->to = $request->user->username;
         $typeNew = Type::where('slug' , $request->type)->first();
 
+        error_log($request->type);
         error_log($typeNew);
         // error_log($request->type);
 
@@ -253,7 +275,7 @@ class ApiController extends Controller
         //                 ->get();
 
         $mails = DB::table('emails')
-                        ->select('emails.id','emails.from','emails.to', 'emails.subject', 'emails.content', 'emails.reply', 'emails.updated_at', 'types.slug')
+                        ->select('emails.id','emails.from','emails.to', 'emails.subject', 'emails.content', 'emails.reply', 'emails.updated_at', 'types.slug', 'emails.read')
                         ->join('types','types.id','=','emails.type')
                         ->where(['emails.to' => $request->to, 'emails.is_draft' => false, 'emails.type' => $request->type ])
                         ->get();
@@ -327,6 +349,18 @@ class ApiController extends Controller
         if($request->to)
             $mail->to = $request->to;
 
+        if($request->reply) {
+            $rply = Email::where('id', $request->reply)->first();
+
+            if($rply && $rply->to == $request->user->username && $request->to == $rply->from)
+                $mail->reply = $request->reply;
+            else
+                $mail->reply = null;
+
+        }
+        else
+            $mail->reply = null;
+
         $mail->subject = $request->subject;
         $mail->content = $request->message;
         $mail->type = 1;
@@ -347,9 +381,9 @@ class ApiController extends Controller
             $mail->reply = null;
 
 
-        $mail->save();        
+        $mail->save();      
 
-        return response()->json(['success' => true, 'message' => 'sent successfuly']);
+        return response()->json(['success' => true, 'message' => 'saved']);
     }
 
 
@@ -398,7 +432,7 @@ class ApiController extends Controller
             return response()->json(["success" => false, "error" =>$validator->errors()->first()],400);
         }
 
-        $mail = Email::where(['to' => $request->user->username])->first();
+        $mail = Email::where(['to' => $request->user->username, 'id' => $request->id])->first();
         $typeNew = Type::where(['slug' => $request->type])->first();
 
         if($mail && $typeNew) {
@@ -448,6 +482,9 @@ class ApiController extends Controller
         if(!($mail->to) && !($request->to))
             return response()->json(["success" => false, "error" => "required to address"],400);
 
+        if(!($mail->to))
+            $mail->to = $request->to;
+
         $chkMail = User::where('username', $mail->to)->first();
 
         if(!($chkMail))
@@ -469,13 +506,55 @@ class ApiController extends Controller
     }
 
 
+    public function reportMail(Request $request) {
+
+        $validator = Validator::make($request->all(),[
+            'id' => 'required'
+        ]);
+
+        $mail = Email::where(['id' => $request->id, 'to' => $request->user->username])->first();
+
+        if(!($mail))
+            return response()->json(["success" => false, "error" => "user Doesn't Exists"],400);
+
+        if($mail->is_reported)
+            return response()->json(["success" => true,
+                    'message' => 'Already Reported'
+                    ],200);
+
+        $mail->is_reported = true;
+        $mail->save();
+
+        return response()->json(["success" => true,
+                'message' => 'Reported Successfuly'
+                ],200);
+    }
+    public function reports(Request $request) {
+
+
+        $mails = Email::where(['is_reported' => true, 'is_resolved' => false])->get();
+        
+        return response()->json(['success' => true, 'message' => $mails]);
+    }
+
+    public function resolve(Request $request) {
+
+        $validator = Validator::make($request->all(),[
+            'id' => 'required'
+        ]);
+
+        $mail = Email::where(['id' => $request->id])->first();
+
+        if(!($mail))
+            return response()->json(["success" => false, "error" => "Mail Doesn't Exists"],400);
+
+
+        $mail->is_reported = true;
+        $mail->is_resolved = true;
+        $mail->save();
+
+        return response()->json(["success" => true,
+                'message' => 'Resolved Successfuly'
+                ],200);
+    }
 }
-
-/*
-
-SQLSTATE[42S22]: Column not found: 1054 Unknown column 'draft' in 'field list' (SQL: update `emails` set `updated_at` = 2019-02-28 07:13:43, `draft` = 1 where `id` = 4)
-
-SQLSTATE[42S22]: Column not found: 1054 Unknown column 'draft' in 'field list' (SQL: update `emails` set `updated_at` = 2019-02-28 07:14:49, `draft` = 1 where `id` = 4)
-
-
-*/

@@ -83,6 +83,11 @@
                                 changepassword
                             </a>
                         </li>
+                        <li>
+                            <a href="draft.html">
+                                Draft
+                            </a>
+                        </li>
 
                         <li>
                             <a href="#" onclick="logout()">
@@ -125,9 +130,9 @@
 
 
                                             <div class="mt75 row justify-content-center">
-                                                <!-- <div class="col-12">
+                                                <div class="col-12" hidden>
                                                     <p type="text" id="reply1">{{id}}</p>
-                                                </div> -->
+                                                </div>
                                                 <div class="col-12">
                                                     <input type="text" id="to1" placeholder="E-Mail"
                                                         class="form-control">
@@ -147,6 +152,10 @@
                                                 <div class="col-12">
                                                     <button type="submit" class="btn btn-primary"
                                                         onclick="send()">Send</button>
+
+                                                    <button type="submit" id="x" class="btn btn-primary"
+                                                        onclick="save()">Save
+                                                        As Draft</button>
                                                 </div>
                                             </div>
                                         </div>

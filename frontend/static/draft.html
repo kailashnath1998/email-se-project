@@ -20,7 +20,6 @@
     <script type="text/javascript" language="javascript" src="./js/bootstrap.min.js"></script>
     <script type="text/javascript" language="javascript" src="./js/sweetalert.min.js"></script>
 
-
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <!-- Fonts Icon CSS -->
     <link href="assets/css/font-awesome.min.css" rel="stylesheet">
@@ -34,7 +33,7 @@
     <link rel="stylesheet" href="assets/css/animate.min.css">
     <!-- Custom styles for this template -->
     <link href="assets/css/main.css" rel="stylesheet">
-    <script src="/js/changepassword.js"></script>
+    <script src="/js/draft.js"></script>
 </head>
 
 <body>
@@ -44,13 +43,9 @@
     </div>
 
     <div class="body-container container-fluid">
-
-        <!--=================== menu Button show in small screens ====================-->
         <a class="menu-btn" href="javascript:void(0)">
             <i class="ion ion-grid"></i>
         </a>
-        <!--=================== menu Button end====================-->
-
         <div class="row justify-content-center">
             <!--=================== side menu ====================-->
             <div class="col-lg-2 col-md-3 col-12 menu_block">
@@ -63,7 +58,6 @@
                 </div>
                 <!--logo end-->
 
-                <!--main menu -->
                 <!--main menu -->
                 <div class="side_menu_section">
                     <ul class="menu_nav">
@@ -82,12 +76,12 @@
                                 Sent
                             </a>
                         </li>
-                        <li class="active">
+                        <li>
                             <a href="changepassword.html">
                                 changepassword
                             </a>
                         </li>
-                        <li>
+                        <li class="active">
                             <a href="draft.html">
                                 Draft
                             </a>
@@ -104,8 +98,7 @@
                 </div>
                 <!--main menu end -->
 
-
-
+                <!--social and copyright -->
                 <div class="side_menu_bottom">
                     <div class="side_menu_bottom_inner">
 
@@ -115,12 +108,15 @@
                         </div>
                     </div>
                 </div>
+                <!--social and copyright end -->
+
             </div>
             <!--=================== side menu end====================-->
 
             <!--=================== content body ====================-->
             <div class="col-lg-10 col-md-9 col-12 body_block  align-content-center">
                 <div>
+
                     <div class="row justify-content-center">
                         <div class="col-md-6 col-7 content_section">
                             <!--=================== contact info and form start====================-->
@@ -128,42 +124,29 @@
                                 <div class="content_box_inner">
                                     <div>
                                         <h3>
-                                            Change Password
+                                            Drafts
                                         </h3>
-                                        <div class="mt75 row justify-content-center">
-                                            <!-- <div class="col-12">
-                                                <p type="text" id="reply1">{{id}}</p>
-                                            </div> -->
-                                            <div class="col-12">
-                                                <input type="password" id="crr1" placeholder="Current Password"
-                                                    class="form-control">
-                                            </div>
-                                            <div class="col-12">
-                                                <input type="password" id="pass" placeholder="New Password"
-                                                    class="form-control">
-                                            </div>
-                                            <div class="col-12">
-                                                <button type="submit" class="btn btn-primary"
-                                                    onclick="change()">Change</button>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
+                                <div class="content_box_inner">
+                                    <button type="submit" class="btn btn-info" onclick="refresh()">Refresh</button>
+                                </div>
+
                             </div>
                             <!--=================== contact info and form end====================-->
                         </div>
                     </div>
 
-                    <div class="col-lg-10 col-md-9 col-12 body_block  align-content-center" id="content">
-
-                    </div>
-
                 </div>
-
-                <div id='modals'>
+                <div class="col-lg-10 col-md-9 col-12 body_block  align-content-center" id="content">
 
                 </div>
             </div>
+
+            <div id='modals'>
+
+            </div>
+
             <!--=================== content body end ====================-->
         </div>
     </div>
